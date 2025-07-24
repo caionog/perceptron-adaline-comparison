@@ -88,93 +88,57 @@ def ativacao(u, limiar = 0):
   else:
     return -1
 
-# # Função de treino do Perceptron
-# def treinarPerceptron(entradas, saidas, taxaAprendizado, epocas, imprimirErro = True):
-
-#   amostras, atributos = entradas.shape
-#   # Pesos -0.5 e 0.5 e 1 para o víes
-#   pesos = np.random.uniform(low=-0.5, high=0.5, size= atributos + 1)
-
-#   listaErros = []
-#   historicosPesos = []
-
-#   #Percorre todas as épocas
-#   for epoca in range(epocas):
-#     erros = 0
-
-#     #Percorre por cada amostra
-#     for i in range(amostras):
-#       exemplo = entradas[i]
-#       esperado = saidas[i]
-
-#       # xi = [xi1, xi2, ..., xin, 1]
-#       entradaComVies = np.append(exemplo,1)
-
-#       #Saida do neurôneo
-#       # ui = Σ (wi* xi) + b
-#       u = np.dot(entradaComVies, pesos)
-#       # Verifica a função de ativação
-#       saida = ativacao(u)
-
-#       #Cálculo do erro
-#       # erro = yi - Yi
-#       erro = esperado - saida
-
-#       #Atualiza pesos somente se houver erro
-#       if erro != 0:
-#         # WxNovo = Wxantigo + η * e * Xx
-#         pesos += taxaAprendizado * erro * entradaComVies
-#         erros += 1
-
-#     listaErros.append(erros)
-#     historicosPesos.append(pesos.copy())
-
-#     if imprimirErro:
-#       print(f"Época {epoca + 1} - Erros de Classificação: {erros}")
-
-#   return pesos,  historicosPesos, listaErros
-
+# Função de treino do Perceptron (Regra de Aprendizado do Perceptron)
 def treinarPerceptron(entradas, saidas, taxaAprendizado, epocas, imprimirErro = True):
-  amostras, atributos = entradas.shape
-  pesos = np.random.randn(atributos) * 0.01
-  bias = np.random.randn() * 0.01
-  listaErros = []
-  historicoPesos = []
+    amostras, atributos = entradas.shape
+    # Inicializa pesos e bias aleatoriamente com valores pequenos
+    pesos = np.random.randn(atributos) * 0.01
+    bias = np.random.randn() * 0.01
+    
+    listaErros = []
+    historicoPesos = []
 
-  for epoca in range(epocas):
-    erros = 0
+    # Percorre todas as épocas
+    for epoca in range(epocas):
+        erros = 0
 
-    indices = np.random.permutation(amostras)
-    entradasEmbaralhadas = entradas[indices]
-    saidasEmbaralhadas = saidas[indices]
+        # Embaralha as amostras a cada época para melhor convergência
+        indices = np.random.permutation(amostras)
+        entradasEmbaralhadas = entradas[indices]
+        saidasEmbaralhadas = saidas[indices]
 
-    for i, x in enumerate(entradasEmbaralhadas):
-      u = np.dot(x, pesos) + bias
-      yPred = ativacao(u)
+        # Percorre por cada amostra
+        for i, x in enumerate(entradasEmbaralhadas):
+            # Saída do neurônio (combinação linear)
+            u = np.dot(x, pesos) + bias
+            # Aplica função de ativação (degrau)
+            yPred = ativacao(u)
 
-      if saidasEmbaralhadas[i] != yPred:
-        atualiza = taxaAprendizado * (saidasEmbaralhadas[i] - yPred)
-        pesos += atualiza * x
-        bias += atualiza
-        erros += 1
+            # Atualiza pesos somente se houver erro de classificação
+            if saidasEmbaralhadas[i] != yPred:
+                # Calcula o fator de atualização
+                atualiza = taxaAprendizado * (saidasEmbaralhadas[i] - yPred)
+                # Atualiza pesos usando a regra do Perceptron
+                # w = w + η * erro * x
+                pesos += atualiza * x
+                # Atualiza bias
+                bias += atualiza
+                erros += 1
 
-    listaErros.append(erros)
-    # Junta pesos e bias
-    historicoPesos.append(np.append(pesos.copy(), bias))
+        # Registra número de erros de classificação da época
+        listaErros.append(erros)
+        # Armazena uma cópia dos pesos (junta pesos e bias)
+        historicoPesos.append(np.append(pesos.copy(), bias))
 
+        if imprimirErro:
+            print(f"Época {epoca + 1}: Pesos = {pesos}, Bias = {bias}")
+            print(f"Época {epoca + 1} - Erros de Classificação: {erros}")
 
+        # Opcional: parar se convergiu (sem erros)
+        # if erros == 0:
+        #     break
 
-    if imprimirErro:
-      print(f"Época {epoca + 1}: Pesos = {pesos}, Bias = {bias}")
-      print(f"Época {epoca + 1} - Erros de Classificação: {erros}")
-
-    # if erros == 0:
-    #   break
-
-
-
-
-  return np.append(pesos, bias), historicoPesos, listaErros
+    return np.append(pesos, bias), historicoPesos, listaErros
 
 """# Funções de Avaliação"""
 
@@ -285,12 +249,12 @@ def plotarRetaDecisaoFinal(historicoPesos, X, Y, taxa, modelo):
     plt.grid(True)
     plt.show()
 
-"""# Primeira taxa de aprendizado (0.1) - Perceptron"""
+"""# Primeira taxa de aprendizado (0.0001) - Perceptron"""
 
-print("=== TREINAMENTO PERCEPTRON - TAXA 0.1 ===")
-# Taxa de 0.1
-pesos1, historicoPesos1, listaErros1= treinarPerceptron(X_train, Y_train, 0.1, 50)
-plotarRetaPorEpoca(historicoPesos1, X_train, Y_train, taxa=0.1, modelo='Perceptron')
+print("=== TREINAMENTO PERCEPTRON - TAXA 0.0001 ===")
+# Taxa de 0.0001
+pesos1, historicoPesos1, listaErros1= treinarPerceptron(X_train, Y_train, 0.0001, 50)
+plotarRetaPorEpoca(historicoPesos1, X_train, Y_train, taxa=0.0001, modelo='Perceptron')
 
 # Avaliação
 pred_train_p1 = predizerPerceptron(X_train, pesos1)
@@ -300,27 +264,27 @@ acuracia_test_p1 = calcularAcuracia(Y_test, pred_test_p1)
 
 print(f"Acurácia no treino: {acuracia_train_p1:.2f}%")
 print(f"Acurácia no teste: {acuracia_test_p1:.2f}%")
-convergencia_p1 = analisarConvergencia(listaErros1, "Perceptron", 0.1)
+convergencia_p1 = analisarConvergencia(listaErros1, "Perceptron", 0.0001)
 
-"""# Reta final - Perceptron - Taxa 0.1"""
+"""# Reta final - Perceptron - Taxa 0.0001"""
 
-plotarRetaDecisaoFinal(historicoPesos1, X_train, Y_train, 0.1, "Perceptron")
+plotarRetaDecisaoFinal(historicoPesos1, X_train, Y_train, 0.0001, "Perceptron")
 
-"""# Erros a cada 5 épocas - Perceptron - Taxa 0.1"""
+"""# Erros a cada 5 épocas - Perceptron - Taxa 0.0001"""
 
 plt.plot(range(len(listaErros1)), listaErros1)
 plt.xlabel("Época")
 plt.ylabel("Erros de Classificação")
-plt.title("Erro por Época - Perceptron (Taxa 0.1)")
+plt.title("Erro por Época - Perceptron (Taxa 0.0001)")
 plt.grid(True)
 plt.show()
 
-"""# Segunda taxa de aprendizado (0.5) - Perceptron"""
+"""# Segunda taxa de aprendizado (0.0005) - Perceptron"""
 
-print("=== TREINAMENTO PERCEPTRON - TAXA 0.5 ===")
-# Taxa de 0.5
-pesos2, historicoPesos2, listaErros2= treinarPerceptron(X_train, Y_train, 0.5, 50)
-plotarRetaPorEpoca(historicoPesos2, X_train, Y_train, taxa=0.5, modelo='Perceptron')
+print("=== TREINAMENTO PERCEPTRON - TAXA 0.0005 ===")
+# Taxa de 0.0005
+pesos2, historicoPesos2, listaErros2= treinarPerceptron(X_train, Y_train, 0.0005, 50)
+plotarRetaPorEpoca(historicoPesos2, X_train, Y_train, taxa=0.0005, modelo='Perceptron')
 
 # Avaliação
 pred_train_p2 = predizerPerceptron(X_train, pesos2)
@@ -330,18 +294,18 @@ acuracia_test_p2 = calcularAcuracia(Y_test, pred_test_p2)
 
 print(f"Acurácia no treino: {acuracia_train_p2:.2f}%")
 print(f"Acurácia no teste: {acuracia_test_p2:.2f}%")
-convergencia_p2 = analisarConvergencia(listaErros2, "Perceptron", 0.5)
+convergencia_p2 = analisarConvergencia(listaErros2, "Perceptron", 0.0005)
 
-"""# Reta Final - Perceptron - Taxa 0.5"""
+"""# Reta Final - Perceptron - Taxa 0.0005"""
 
-plotarRetaDecisaoFinal(historicoPesos2, X_train, Y_train, 0.5, "Perceptron")
+plotarRetaDecisaoFinal(historicoPesos2, X_train, Y_train, 0.0005, "Perceptron")
 
-"""# Erros por época - Perceptron - Taxa 0.5"""
+"""# Erros por época - Perceptron - Taxa 0.0005"""
 
 plt.plot(range(len(listaErros2)), listaErros2)
 plt.xlabel("Época")
 plt.ylabel("Erros de Classificação")
-plt.title("Erro por Época - Perceptron - (Taxa 0.5)")
+plt.title("Erro por Época - Perceptron - (Taxa 0.0005)")
 plt.grid(True)
 plt.show()
 
@@ -518,8 +482,8 @@ print("COMPARAÇÃO FINAL DOS MODELOS")
 print("="*60)
 
 print("\n--- PERCEPTRON ---")
-print(f"Taxa 0.1: Acurácia Teste = {acuracia_test_p1:.2f}%, Convergência = {convergencia_p1}")
-print(f"Taxa 0.5: Acurácia Teste = {acuracia_test_p2:.2f}%, Convergência = {convergencia_p2}")
+print(f"Taxa 0.0001: Acurácia Teste = {acuracia_test_p1:.2f}%, Convergência = {convergencia_p1}")
+print(f"Taxa 0.0005: Acurácia Teste = {acuracia_test_p2:.2f}%, Convergência = {convergencia_p2}")
 
 print("\n--- ADALINE ---")
 print(f"Taxa 0.0001: Acurácia Teste = {acuracia_test_a1:.2f}%, Convergência = {convergencia_a1}")
@@ -527,8 +491,8 @@ print(f"Taxa 0.0005: Acurácia Teste = {acuracia_test_a2:.2f}%, Convergência = 
 
 print("\n--- ANÁLISE DE SENSIBILIDADE À TAXA DE APRENDIZADO ---")
 print("Perceptron:")
-print(f"  - Taxa maior (0.5): {'Converge mais rápido' if convergencia_p2 and convergencia_p1 and convergencia_p2 < convergencia_p1 else 'Pode ser instável'}")
-print(f"  - Taxa menor (0.1): {'Converge mais devagar mas de forma estável' if convergencia_p1 else 'Convergência lenta'}")
+print(f"  - Taxa maior (0.0005): {'Converge mais rápido' if convergencia_p2 and convergencia_p1 and convergencia_p2 < convergencia_p1 else 'Pode ser instável'}")
+print(f"  - Taxa menor (0.0001): {'Converge mais devagar mas de forma estável' if convergencia_p1 else 'Convergência lenta'}")
 
 print("Adaline:")
 print(f"  - Taxa maior (0.0005): {'Converge mais rápido' if convergencia_a2 and convergencia_a1 and convergencia_a2 < convergencia_a1 else 'Pode ser instável'}")
@@ -538,8 +502,8 @@ print(f"  - Taxa menor (0.0001): {'Converge mais devagar mas de forma estável' 
 plt.figure(figsize=(15, 5))
 
 plt.subplot(1, 3, 1)
-plt.plot(range(len(listaErros1)), listaErros1, label='Taxa 0.1', color='blue')
-plt.plot(range(len(listaErros2)), listaErros2, label='Taxa 0.5', color='red')
+plt.plot(range(len(listaErros1)), listaErros1, label='Taxa 0.0001', color='blue')
+plt.plot(range(len(listaErros2)), listaErros2, label='Taxa 0.0005', color='red')
 plt.xlabel("Época")
 plt.ylabel("Erros de Classificação")
 plt.title("Perceptron - Comparação de Taxas")
@@ -557,7 +521,7 @@ plt.grid(True)
 
 plt.subplot(1, 3, 3)
 acuracias = [acuracia_test_p1, acuracia_test_p2, acuracia_test_a1, acuracia_test_a2]
-modelos = ['Perceptron\n(η=0.1)', 'Perceptron\n(η=0.5)', 'Adaline\n(η=0.0001)', 'Adaline\n(η=0.0005)']
+modelos = ['Perceptron\n(η=0.0001)', 'Perceptron\n(η=0.0005)', 'Adaline\n(η=0.0001)', 'Adaline\n(η=0.0005)']
 cores = ['blue', 'red', 'green', 'orange']
 plt.bar(modelos, acuracias, color=cores, alpha=0.7)
 plt.ylabel("Acurácia no Teste (%)")
